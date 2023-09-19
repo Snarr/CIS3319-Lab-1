@@ -78,8 +78,15 @@ def xor(bits1: Iterable[int], bits2: Iterable[int]) -> 'list[int]':
     """
     xor two bits
     """
-    # TODO: your code here
-    return [] # just a placeholder
+    bits3 = []
+
+    for i in range(len(bits2)):
+        if (bits1 != bits2):
+            bits3 = 1
+        else:
+            bits3 = 0
+
+    return bits3 # just a placeholder
 
 def shift(list, n):
     return list[n:]+list[:n]
@@ -249,9 +256,31 @@ class DES:
         key: 48 bits
         return: 32 bits
         """
-        # TODO: your code here
+        expansion_permutation = permute(R, DES.D_EXPANSION)
+        xor_list = xor(R, key)
 
-        return [] # just a placeholder
+        s_box_values = []
+        
+        for i in range(8):
+            six_bit_block = xor_list[i*6:i*6 + 5]
+
+            row_bits = str.join("", [six_bit_block[0], six_bit_block[5]])
+            row_int = int(row_bits, 2)
+
+            column_bits = str.join("", [six_bit_block[1],six_bit_block[2],six_bit_block[3],six_bit_block[4]])
+            column_int = int(column_bits, 2)
+
+            s_box_lookup_int = DES.S[i][row_int][column_int]
+
+            s_box_lookup_bin = bin(s_box_lookup_int)[2:]
+
+            s_box_values = s_box_lookup_bin
+
+        s_box_total = str.join("", s_box_values)
+
+        straight_permutation = permute(s_box_total, DES.D_STRAIGHT)
+
+        return straight_permutation # just a placeholder
 
     @staticmethod  
     def mixer(L: 'list[int]', R: 'list[int]', sub_key: 'list[int]') -> 'tuple[list[int]]':
@@ -263,7 +292,13 @@ class DES:
         # TODO: your code here
         # tips: finish f and xor first, then use them here
 
-        return (L, R) # just a placeholder
+        # Ln = Rn-1
+        Li = R
+
+        # Rn = Ln-1 XOR f(Rn-1, subkey)
+        Ri = xor(L, DES.f(R, sub_key))
+
+        return (Li, Ri) # just a placeholder
     
     @staticmethod
     def swapper(L: 'list[int]', R: 'list[int]') -> 'tuple[list[int]]':
@@ -286,8 +321,19 @@ class DES:
         block: 64 bits.
         return: 64 bits.
         """
-        # TODO: your code here
-        return [] # just a placeholder
+        initial_permutation = permute(block, DES.IP)
+
+        L_rounds = [initial_permutation[:31]]
+        R_rounds = [initial_permutation[32:]]
+
+        for i in range(1, 15):
+            (Li, Ri) = DES.mixer(L_rounds, R_rounds)
+            L_rounds[i] = Li
+            R_rounds[i] = Ri
+
+        reverse_sides = str.join("", [R_rounds[15], L_rounds[15]])
+
+        return permute(reverse_sides, DES.FP)
 
     def dec_block(self, block: 'list[int]') -> 'list[int]':
         """
@@ -306,6 +352,7 @@ class DES:
         """
 
         blocks = []
+        output_blocks = []
 
         for i in range(0, len(msg_str), 8):
             block = []
@@ -315,11 +362,6 @@ class DES:
 
             blocks.append(str.join("", block))
 
-        
-
-
-
-        # TODO: your code here
         return b'' # just a placeholder
     
     def decrypt(self, msg_bytes: bytes) -> str:
