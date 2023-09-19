@@ -18,13 +18,14 @@ class KeyManager:
     def __init__(self, seed=None):
         self.random = random.Random(seed)
     
-    def generate_key(self, key_len=256) -> bytes:
+    def generate_key(self, key_len=64) -> bytes:
         """"
         Generate a random key of length key_len (bit length).
         return: random bytes of length (key_len // 8)
         """
-        # TODO: your code here
-        rand_bytes = bytes() # just a placeholder
+       
+        rand_bits = self.random.getrandbits(key_len)
+        rand_bytes = rand_bits.to_bytes(int(key_len/8), "big")
 
         return rand_bytes
 
@@ -282,6 +283,19 @@ class DES:
         Handle block division here.
         *Inputs are guaranteed to have a length divisible by 8.
         """
+
+        blocks = []
+
+        for i in range(0, len(msg_str), 8):
+            block = []
+
+            for j in range(0, 8, 1):
+                block.append(msg_str[i+j])
+
+            blocks.append(str.join("", block))
+
+
+
         # TODO: your code here
         return b'' # just a placeholder
     
@@ -292,3 +306,25 @@ class DES:
         """
         # TODO: your code here
         return '' # just a placeholder
+    
+    def generate_subkey(self, key: bytes):
+        """
+        From 64-bit key,
+        Generate 56-bit subkey.
+        """
+        key_bits = bin(int.from_bytes(key, "big"))[2:]
+
+        subkey_bits_array = []
+
+        for i in range(1, 65, 1):
+            if (i % 8 == 0):
+                continue
+            subkey_bits_array.append(key_bits[i-1])
+
+        subkey_bits = str.join("", subkey_bits_array)
+
+        return int(subkey_bits, 2).to_bytes(7, 'big')
+    
+    
+
+        
