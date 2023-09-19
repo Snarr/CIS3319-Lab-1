@@ -34,10 +34,12 @@ def bitize(byts: bytes) -> 'list[int]':
     """
     bitize bytes
     """
-    bits = []
-    # TODO: your code here
+    bit_string = bin(byts)[2:]
+    bit_char_array = bit_string.split()
+    for i in range(len(bit_char_array)):
+        bit_char_array[i] = int(bit_char_array[i])
 
-    return bits
+    return bit_char_array
 
 def debitize(bits: Iterable[int]) -> bytes:
     """
