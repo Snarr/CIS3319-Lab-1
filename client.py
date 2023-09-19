@@ -33,9 +33,12 @@ if __name__ == '__main__':
 
     while True:
         msg = input('> ')
+
         if msg == 'exit':
             break
 
-        # TODO: your code here
+        client.send(msg.encode())
+        data = client.recv(1024).decode()
+        print(data)
         
     client.close()

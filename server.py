@@ -33,12 +33,19 @@ if __name__ == '__main__':
     key = KeyManager.read_key('key.txt')
     des = DES(key)
 
+    print(f"Connected by {server.addr}")
+
+    
     while True:
-        # TODO: your code here
+        
+        data = server.recv(1024).decode()
+        print(data)
 
         msg = input('> ')
         if msg == 'exit':
             break
+
+        server.send(msg.encode())
         
         # TODO: your code here
 
