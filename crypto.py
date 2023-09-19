@@ -264,22 +264,30 @@ class DES:
         s_box_values = []
         
         for i in range(8):
+            # Get six bit block
             six_bit_block = xor_list[i*6:i*6 + 5]
 
+            # Find row value from first and last bits
             row_bits = str.join("", [six_bit_block[0], six_bit_block[5]])
             row_int = int(row_bits, 2)
 
+            # Find column value from middle bits
             column_bits = str.join("", [six_bit_block[1],six_bit_block[2],six_bit_block[3],six_bit_block[4]])
             column_int = int(column_bits, 2)
 
+            # Lookup value in S Box
             s_box_lookup_int = DES.S[i][row_int][column_int]
 
+            # Convert to bit string
             s_box_lookup_bin = bin(s_box_lookup_int)[2:]
 
-            s_box_values = s_box_lookup_bin
+            # Append to s_box_values
+            s_box_values.append(s_box_lookup_bin)
 
+        # Join all s box outputs
         s_box_total = str.join("", s_box_values)
 
+        # Straight permute
         straight_permutation = permute(s_box_total, DES.D_STRAIGHT)
 
         return straight_permutation # just a placeholder
@@ -325,16 +333,20 @@ class DES:
         """
         initial_permutation = permute(block, DES.IP)
 
+        # Get first 32 and last 32 bits
         L_rounds = [initial_permutation[:31]]
         R_rounds = [initial_permutation[32:]]
 
+        # Run sides through 16 mixer rounds
         for i in range(1, 15):
             (Li, Ri) = DES.mixer(L_rounds, R_rounds)
             L_rounds[i] = Li
             R_rounds[i] = Ri
 
+        # Swap sides and join
         reverse_sides = str.join("", [R_rounds[15], L_rounds[15]])
 
+        # Return final permuteted value
         return permute(reverse_sides, DES.FP)
 
     def dec_block(self, block: 'list[int]') -> 'list[int]':
@@ -356,6 +368,7 @@ class DES:
         blocks = []
         output_blocks = []
 
+        # From start to end of message create blocks of size 8 char (64 bits)
         for i in range(0, len(msg_str), 8):
             block = []
 
@@ -375,22 +388,26 @@ class DES:
         return '' # just a placeholder
     
     @staticmethod
-    def generate_subkey(key: bytes):
+    def generate_subkey(key: bytes) -> int:
         """
         From 64-bit key,
         Generate 56-bit subkey.
         """
+        # Convert key to bit string
         key_bits = bin(int.from_bytes(key, "big"))[2:]
 
         subkey_bits_array = []
 
+        # Add each bit except for ones in index divisible by 8
         for i in range(1, 65, 1):
             if (i % 8 == 0):
                 continue
             subkey_bits_array.append(key_bits[i-1])
 
+        # Join bit string
         subkey_bits = str.join("", subkey_bits_array)
 
+        # Convert back to int
         return int(subkey_bits, 2).to_bytes(7, 'big')
     
     

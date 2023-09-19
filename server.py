@@ -48,7 +48,5 @@ if __name__ == '__main__':
             break
 
         server.send(des.encrypt(msg))
-        
-        # TODO: your code here
 
     server.close()
