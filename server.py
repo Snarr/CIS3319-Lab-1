@@ -31,21 +31,23 @@ class Server:
 if __name__ == '__main__':
     server = Server('localhost', 9999)
     key = KeyManager.read_key('key.txt')
+    subkeys = DES.key_generation(key)
     des = DES(key)
 
     print(f"Connected by {server.addr}")
 
+    DES.key_generation(key)
     
     while True:
         
         data = server.recv(1024).decode()
-        print(data)
+        print(des.decrypt(data))
 
         msg = input('> ')
         if msg == 'exit':
             break
 
-        server.send(msg.encode())
+        server.send(des.encrypt(msg))
         
         # TODO: your code here
 

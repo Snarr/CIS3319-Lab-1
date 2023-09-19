@@ -37,8 +37,9 @@ if __name__ == '__main__':
         if msg == 'exit':
             break
 
-        client.send(msg.encode())
+        client.send(des.encrypt(msg))
+
         data = client.recv(1024).decode()
-        print(data)
+        print(des.decrypt(data))
         
     client.close()
