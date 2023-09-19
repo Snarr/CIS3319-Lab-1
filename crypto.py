@@ -67,8 +67,12 @@ def permute(raw_seq: Iterable, table: Iterable[int]) -> list:
     """
     permute bits with a table
     """
-    # TODO: your code here
-    return [] # just a placeholder
+    new_seq = []
+
+    for i in range(len(table)):
+        new_seq.append(raw_seq[table[i]])
+
+    return new_seq # just a placeholder
 
 def xor(bits1: Iterable[int], bits2: Iterable[int]) -> 'list[int]':
     """
@@ -76,6 +80,9 @@ def xor(bits1: Iterable[int], bits2: Iterable[int]) -> 'list[int]':
     """
     # TODO: your code here
     return [] # just a placeholder
+
+def shift(list, n):
+    return list[n:]+list[:n]
 
 class DES:
 
@@ -209,14 +216,28 @@ class DES:
     ]
 
     @staticmethod
-    def key_generation(key: 'list[int]') -> 'list[list[int]]':
+    def key_generation(key: bytes) -> 'list[list[int]]':
         """
         raw_key: 64 bits
         return: 16 * (48bits key)
         """
 
+        subkey = DES.generate_subkey(key)
+
         keys: 'list[list[int]]' = []
-        # TODO: your code here
+
+        left_subkey = subkey[:25]
+        right_subkey = subkey[26:]
+        
+        for i in range(16):
+            round_left_subkey = shift(left_subkey, DES.BIT_SHIFT[i])
+            round_right_subkey = shift(right_subkey, DES.BIT_SHIFT[i])
+
+            combined_key = round_left_subkey+round_right_subkey
+
+            permuteted_key = permute(combined_key, DES.KEY_COMPRESSION)
+
+            keys[i] = permuteted_key
 
         return keys
 
@@ -294,6 +315,8 @@ class DES:
 
             blocks.append(str.join("", block))
 
+        
+
 
 
         # TODO: your code here
@@ -307,7 +330,8 @@ class DES:
         # TODO: your code here
         return '' # just a placeholder
     
-    def generate_subkey(self, key: bytes):
+    @staticmethod
+    def generate_subkey(key: bytes):
         """
         From 64-bit key,
         Generate 56-bit subkey.
@@ -326,5 +350,3 @@ class DES:
         return int(subkey_bits, 2).to_bytes(7, 'big')
     
     
-
-        
